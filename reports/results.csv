@@ -1,0 +1,7 @@
+model,slice,n,prevalence,majority_floor,accuracy,precision,recall,specificity,f1,roc_auc,tn,fp,fn,tp
+baseline: majority class,full test,476,0.334,0.666,0.666,0.0,0.0,1.0,0.0,0.5,317,0,159,0
+baseline: majority class,source-matched (flickr),247,0.615,0.615,0.3846,0.0,0.0,1.0,0.0,0.5,95,0,152,0
+baseline: majority class,unsplash only,229,0.031,0.969,0.9694,0.0,0.0,1.0,0.0,0.5,222,0,7,0
+baseline: source only,full test,476,0.334,0.666,0.7857,0.6154,0.956,0.7003,0.7488,0.8281,222,95,7,152
+baseline: source only,source-matched (flickr),247,0.615,0.615,0.6154,0.6154,1.0,0.0,0.7619,0.5,0,95,0,152
+baseline: source only,unsplash only,229,0.031,0.969,0.9694,0.0,0.0,1.0,0.0,0.5,222,0,7,0
