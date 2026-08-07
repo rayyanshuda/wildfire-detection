@@ -32,13 +32,15 @@ def pick_threshold(y_true, y_score):
 
 
 def train_model(make_model, seed, epochs=40, lr=1e-3, patience=8, bs=32,
-                tag='model', freeze_epochs=0, train_idx=None, val_idx=None):
+                tag='model', freeze_epochs=0, train_idx=None, val_idx=None,
+                train_transform=None):
     """train_idx: explicit list of training indices (stratified subsets for the
     data-efficiency experiment). val_idx: only for fast dry runs — real runs use
     the FULL val set at every training size, or the sizes aren't comparable."""
     torch.manual_seed(seed); np.random.seed(seed)
 
-    train_ds = WildfireDataset(CSV, IMGS, 'train', train_tf)
+    tf = train_transform if train_transform is not None else train_tf
+    train_ds = WildfireDataset(CSV, IMGS, 'train', tf)
     val_ds   = WildfireDataset(CSV, IMGS, 'val',   eval_tf)
     if train_idx is not None:
         train_ds = Subset(train_ds, list(train_idx))
@@ -94,7 +96,8 @@ def train_model(make_model, seed, epochs=40, lr=1e-3, patience=8, bs=32,
         history.append({'epoch': epoch, 'train_loss': run_loss / n,
                         'val_loss': val_loss, 'val_auc': val_auc,
                         'lr': scheduler.get_last_lr()[0]})
-        print(f'  ep {epoch:2d}  train {run_loss/n:.4f}  val {val_loss:.4f}  auc {val_auc:.4f}')
+        if epoch % 10 == 0 or epoch == epochs - 1:
+            print(f'  ep {epoch:3d}  train {run_loss/n:.4f}  val {val_loss:.4f}  auc {val_auc:.4f}')
 
         if val_auc > best_auc:
             best_auc, best_epoch, bad = val_auc, epoch, 0

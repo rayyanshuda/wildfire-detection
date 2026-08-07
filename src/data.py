@@ -28,6 +28,18 @@ eval_tf = T.Compose([
     T.Normalize(MEAN, STD),
 ])
 
+# The shortcut intervention: attacks stock-photo *style* (grading, saturation,
+# exposure). Hue held at 0.05 because fire is orange, so rotating hue would destroy
+# the signal rather than de-bias the model.
+aug_tf = T.Compose([
+    T.RandomResizedCrop(SIZE, scale=(0.6, 1.0)),
+    T.RandomHorizontalFlip(),
+    T.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.5, hue=0.05),
+    T.RandomGrayscale(p=0.2),
+    T.ToTensor(),
+    T.Normalize(MEAN, STD),
+])
+
 
 class WildfireDataset(Dataset):
     """Reads split_v1.csv; labels fire=1.0, nofire=0.0."""
