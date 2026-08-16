@@ -4,7 +4,7 @@ A comparison of a hand-designed 94k-parameter CNN against EfficientNet-B0, in Py
 
 For the full blog on what I planned to do, the decisions I made, the reasonings behind them, my mistakes, more figures and reports, and a deeper dive into this project -> click on the link below to visit my website to read about it.
 
-**[rayyanhuda.com](https://www.rayyanhuda.com/blog/machine-learning/wildfire-detection)**
+**[rayyanhuda.com/blog/machine-learning/wildfire-detection](https://www.rayyanhuda.com/blog/machine-learning/wildfire-detection)**
 
 ---
 
