@@ -1,8 +1,8 @@
 # Wildfire Detection: a custom CNN vs transfer learning
 
-A comparison of a hand-designed 94k-parameter CNN against EfficientNet-B0, in PyTorch. Why does transfer learning win over a custom CNN?
+A comparison of a hand-designed 94k-parameter CNN against EfficientNet-B0 in PyTorch. Why does transfer learning win over a custom CNN?
 
-For the full blog on what I planned to do, the decisions I made, the reasonings behind them, my mistakes, more figures and reports, and a deeper dive into this project -> click on the link below to visit my website to read about it.
+For the full blog on what I planned to do, the decisions I made, the reasoning behind them, my mistakes, more figures and reports, and a deeper dive into this project, click the link below to visit my website.
 
 **[rayyanhuda.com/blog/machine-learning/wildfire-detection](https://www.rayyanhuda.com/blog/machine-learning/wildfire-detection)**
 
@@ -10,38 +10,38 @@ For the full blog on what I planned to do, the decisions I made, the reasonings 
 
 ## The problem
 
-With the global news of the spread of Canadian wildfire in my region, I took it upon myself to develop machine learning models to detect wildfire from images.
+With the global news of the spread of Canadian wildfires in my region, I took it upon myself to develop machine learning models to detect wildfires from images.
 
 I picked a public wildfire dataset and found its two sources:
-Flickr and Unsplash. Unfortunately, the source almost determines the label (made my job expontentially harder):
+Flickr and Unsplash. Unfortunately, the source almost determines the label (made my job exponentially harder):
 
 | source | fire | nofire |
 |---|---|---|
 | Flickr | 989 | 198 |
 | Unsplash | 56 | 1,456 |
 
-**A classifier that reads only the filename and never opens an image scores 92.4% on the official test split.** The majority-class baseline is 61.2%. So any result on this benchmark has to clear 92.4% before it means anything, and a model can get there by learning stock-photo style rather than fire.
+**A classifier that reads only the filename and never opens an image scores 92.4% on the official test split.** The majority-class baseline is 61.2%. So any result on this benchmark has to clear 92.4% to mean anything, and a model can get there by learning stock-photo style rather than fire.
 
 ## What I planned
 
-Build a CNN from scratch, fine-tune EfficientNet-B0, compare them on accuracy, data efficiency, overfitting behaviour and inference speed.
+Build a CNN from scratch, fine-tune EfficientNet-B0, compare them on accuracy, data efficiency, overfitting behaviour, and inference speed.
 
 ## What I did instead
 
 After discovering the shortcut in the dataset, I restructured the experiment around 3 changes to isolate real performance from dataset bias:
 
 1. **Rebuilt the split (group-aware & stratified)**  
-   *Prevented data leakage and style memorization.* If a single photographer uploaded 10 pictuers from the same photo session, and 8 went into the training set and 2 went into the test set, the model could easily "cheat" by recognizing that specific photographer's style or location.
-   My fix for this was to make **all images from the same photographer** or **upload session** stayed together in the same set (either all in training, or all in testing).
+   *Prevented data leakage and style memorization.* If a single photographer uploaded 10 pictures from the same photo session, and 8 went into the training set and 2 went into the test set, the model could easily "cheat" by recognizing that specific photographer's style or location.
+   My fix for this was to make **all images from the same photographer** or **upload session** stay together in the same set (either all in training, or all in testing).
 
 
 2. **Added a source-matched evaluation slice**  
-   *Created a shortcut-free benchmark.* In the main test set, the shortcut still existed (Flickr mostly = Fire, Unsplash mostly = No Fire). If a model got a high school, I couldn't tell if it was smart or just good at guessing the website source.
+   *Created a shortcut-free benchmark.* In the main test set, the shortcut still existed (Flickr mostly = Fire, Unsplash mostly = No Fire). If a model got a high score, I couldn't tell if it was smart or just good at guessing the website source.
    So I created a test subset of $247$ images where the numbers were balanced (equal mix of Flickr and Unsplash images for both fire and no-fire). On this subset, guessing the website source is an exact 50% score (pure luck).
    This was my true stress-test. If a model scored high on this slice, it proves it is actually looking at fire, and not a loophole.
 
 3. **Added a third model arm (`B0-scratch`)**  
-   *Separate architecture vs. pretraining.* Comparing just the custom scratch CNN vs EfficientNet-B0 (pretrained on ImageNet), if EfficientNet won, I wouldn't know if it was because EfficientNet has a much better architectural design, or because it already saw millions of images during pretraining.
+   *Separate architecture vs. pretraining.* Comparing just the custom scratch CNN vs. EfficientNet-B0 (pretrained on ImageNet), if EfficientNet won, I wouldn't know if it was because EfficientNet has a much better architectural design, or because it already saw millions of images during pretraining.
 
    So I added a third control group: EfficientNet-B0 trained from scratch (`weights=None`). This separates the variables so:
     - Custom CNN vs B0-scratch: Compares architecture alone
@@ -54,7 +54,7 @@ Everything else is held fixed across arms: same split, 160×160 inputs, augmenta
 ## Results
 
 ROC-AUC, mean ± sample std over 3 seeds, single Tesla T4.
-The full-test AUC is the performance on the standard test split (a model can score high here just by identifying stock-photo camera quality, saturation, or watermarks.)
+The full-test AUC is the performance on the standard test split (a model can score high here just by identifying stock-photo camera quality, saturation, or watermarks)
 
 The source-matched AUC is the performance on the curated subset of 247 images where Flickr and Unsplash images are evenly balanced across fire and non-fire categories.
 
@@ -77,16 +77,16 @@ The source-matched AUC is the performance on the curated subset of 247 images wh
 - $48\%$ of that jump came from EfficientNet having a much smarter design (depthwise convolutions, better layer structure).
 - $52\%$ came from ImageNet pretraining.
 
-What's unique though, is that at $100$ images, the 4-million-parameter EfficientNet trained from scratch performed slightly worse than the tiny $94\text{k}$-parameter model. *A complex architectural design is useless without enough data to learn its parameters.*
+What's unique, though, is that at $100$ images, the 4-million-parameter EfficientNet trained from scratch performed slightly worse than the tiny $94\text{k}$-parameter model. *A complex architectural design is useless without enough data to learn its parameters.*
 
-**Pretrained features resist the shortcut.** "Shortcut reliance" measures how much higher a model scores on the flawed test set versus the clean test slice.The Custom CNN had a massive gap ($0.106$), meaning it relied heavily on website style.The Pretrained EfficientNet had a tiny gap ($0.034$). Because it already knew what natural objects looked like, so it looked for actual fire features rather than photo-style hints.
+**Pretrained features resist the shortcut.** "Shortcut reliance" measures how much higher a model scores on the flawed test set versus the clean test slice. The Custom CNN had a massive gap ($0.106$), meaning it relied heavily on website style. The Pretrained EfficientNet had a tiny gap ($0.034$). Because it already knew what natural objects looked like, it looked for actual fire features rather than photo-style hints.
 
 **Hard negatives stay hard.** Images with heavy fog, lens glare, or bright sunsets look visually similar to smoke and fire. Even the best pretrained model mistook $33\%$ of these look-alikes for fire (compared to only a $4\%$ error rate on standard forest images). Adding more training images didn't fix this because the visual features overlap at $160\times160$ resolution.
 
 At a low resolution like $160\times160$ pixels, fine visual details are completely blurred out or lost:
 
-- Textural Loss: Smoke has a turbulent, billowy texture, whereas fog or lens glare is usually smooth diffused. At $160\times160$, those high-frequency texture details disappear, which makes both smoke and fog into smooth greyish-white blobs.
-- Structural Loss: Fire has sharp, flickering, irregular edges. A bright sunset horizon at low resolution becomes a low-detail gradient of bright orange pixels, the exact same cluster of orange pixels that represents a distant flame.
+- Textural Loss: Smoke has a turbulent, billowy texture, whereas fog or lens glare is usually smooth and diffused. At $160\times160$, those high-frequency texture details disappear, which makes both smoke and fog into smooth greyish-white blobs.
+- Structural Loss: Fire has sharp, flickering, irregular edges. A bright sunset horizon at low resolution becomes a low-detail gradient of bright orange pixels, the same cluster of orange pixels that represents a distant flame.
 
 When these crucial diagnostic details are stripped away by low spatial resolution, the two concepts become mathematically identical in pixel space. The model isn't being "dumb", it's just impossible for the model to differentiate the difference at that scale.
 
@@ -99,10 +99,10 @@ When these crucial diagnostic details are stripped away by low spatial resolutio
 
 ## Limitations
 
-- **Not comparable.** The dataset split was rebuilt to prevent the models from cheating. You can't directly compare these accuracy numbers on this hard split to a model evaluated on the original, flawed split; i twould be like comparing scorse from two very different tests.
+- **Not comparable.** The dataset split was rebuilt to prevent the models from cheating. You can't directly compare these accuracy numbers on this hard split to a model evaluated on the original, flawed split; it would be like comparing scores from two very different tests.
 - The clean test slice only has 247 images. On a small test group that size, slight changes in scores happen purely due to random chance (like how the random seed shuffled the batch or initialized weights). Only score gaps larger than $0.02$ represent real, meaningful performance differences.
-- **Training data is stock photography.** The model was trained on pretty photos, not real industrial surveillance footage. They rarely feature tiny wisps of early stage smoke, which is what a real fire-detection system needs to catch before a wildfire spreads. 
-- At $160\times160$ resolution, some pictures are so low-detail that even a human (me) looking at them can't tell if it's a sunset or a fire. If a human can't classify the image confidently, penalizing the model for guessing wrong isn't entirely fair, some photos are just ambiguous and misleading.
+- **Training data is stock photography.** The model was trained on pretty photos, not real industrial surveillance footage. They rarely feature tiny wisps of early-stage smoke, which is what a real fire-detection system needs to catch before a wildfire spreads. 
+- At $160\times160$ resolution, some pictures are so low-detail that even a human (me) looking at them can't tell if it's a sunset or a fire. If a human can't classify the image confidently, penalizing the model for guessing wrong isn't entirely fair; some photos are just ambiguous and misleading.
 
 ## Sources
 
